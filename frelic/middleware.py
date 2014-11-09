@@ -16,7 +16,7 @@ from .core import Frelic
 _HTML_TYPES = ('text/html', 'application/xhtml+xml')
 
 
-class FreelicMiddleware(object):
+class FrelicMiddleware(object):
     def process_request(self, request):
         request._frelic = Frelic()
         template_rendered.connect(request._frelic.count_templates)
