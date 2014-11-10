@@ -1,3 +1,4 @@
+from itertools import islice
 import time
 
 from django.conf import settings
@@ -9,7 +10,8 @@ class Frelic(object):
 
     def __init__(self):
         self.start_time = time.time()
-        self.template_num = 0 
+        self.template_num = 0
+        self.sentinel = len(connection.queries)
 
     def set_view_name(self, view_func):
         self.view_name = ".".join((view_func.__module__, view_func.__name__))
@@ -30,7 +32,7 @@ class Frelic(object):
         self.add_count('SQL Queries', self.sql_query_num)
 
         sql_time = 0.0
-        for query in connection.queries:
+        for query in islice(connection.queries, self.sentinel):
             query_time = float(query.get('time', 0)) * 1000
             if query_time == 0:
                 # django-debug-toolbar monkeypatches the connection
