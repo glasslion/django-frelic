@@ -26,13 +26,13 @@ class Frelic(object):
         total_time = (time.time() - self.start_time) * 1000
         self.add_timing("Total time", total_time)
 
-        self.sql_query_num = len(connection.queries)
+        self.sql_query_num = len(connection.queries) - self.sentinel
 
         self.add_count('Rendered Templates', self.template_num)
         self.add_count('SQL Queries', self.sql_query_num)
 
         sql_time = 0.0
-        for query in islice(connection.queries, self.sentinel):
+        for query in islice(connection.queries, None, self.sentinel):
             query_time = float(query.get('time', 0)) * 1000
             if query_time == 0:
                 # django-debug-toolbar monkeypatches the connection
