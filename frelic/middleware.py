@@ -1,19 +1,31 @@
 """
 django-frelic middleware
 """
-from pprint import pprint
 import time
 import re
 
 
 from django.conf import settings
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_str, force_text
+from django.template import Template
 from django.test.signals import template_rendered
+from django.test.utils import instrumented_test_render
 
 from .core import Frelic
 
 
 _HTML_TYPES = ('text/html', 'application/xhtml+xml')
+
+
+# Monkey-patch to enable the template_rendered signal. The receiver returns
+# immediately when the panel is disabled to keep the overhead small.
+
+# Code taken and adapted from Simon Willison and Django Snippets:
+# http://www.djangosnippets.org/snippets/766/
+
+if Template._render != instrumented_test_render:
+    Template.original_render = Template._render
+    Template._render = instrumented_test_render
 
 
 class FrelicMiddleware(object):
@@ -50,7 +62,9 @@ class FrelicMiddleware(object):
 
         ga_code = request._frelic.ga_code()
 
-        response.content = response.content.replace("<!-- /* FRELIC DATA */ -->", ga_code)
+        content = force_text(response.content, encoding=settings.DEFAULT_CHARSET)
+
+        response.content = content.replace(u"<!-- /* FRELIC DATA */ -->", ga_code)
         
         if response.get('Content-Length', None):
             response['Content-Length'] = len(response.content)
