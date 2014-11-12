@@ -23,8 +23,8 @@ class Frelic(object):
         self.timings = []
         self.counts = []
 
-        total_time = (time.time() - self.start_time) * 1000
-        self.add_timing("Total time", total_time)
+        total_time = int((time.time() - self.start_time) * 1000)
+        self.add_timing("Total View Time", total_time)
 
         self.sql_query_num = len(connection.queries) - self.sentinel
 
