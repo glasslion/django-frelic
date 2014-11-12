@@ -32,7 +32,7 @@ class Frelic(object):
         self.add_count('SQL Queries', self.sql_query_num)
 
         sql_time = 0.0
-        for query in islice(connection.queries, None, self.sentinel):
+        for query in islice(connection.queries, self.sentinel, None):
             query_time = float(query.get('time', 0)) * 1000
             if query_time == 0:
                 # django-debug-toolbar monkeypatches the connection
